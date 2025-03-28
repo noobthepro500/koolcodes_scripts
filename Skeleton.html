@@ -1,0 +1,873 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cute Walking Skeleton</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #1a1a2e, #16213e); /* Dark gradient background */
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #movement-area {
+            position: relative;
+            width: 85vw;
+            height: 85vh;
+            margin: 0 auto;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #4CAF50, #2E7D32); /* Gradient green ground */
+            border-radius: 15px;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            border: 4px solid #8BC34A;
+        }
+
+        #skeleton {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
+            transition: left 1.2s ease-out, bottom 1.2s ease-out;
+            z-index: 10;
+        }
+
+        .head {
+            font-size: 54px;
+            margin-bottom: -5px;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .body {
+            width: 34px;
+            height: 65px;
+            background-color: white;
+            border: 3px solid #333;
+            border-radius: 8px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .arms {
+            width: 110px;
+            height: 12px;
+            background-color: white;
+            border: 3px solid #333;
+            position: absolute;
+            top: 12px;
+            left: -38px;
+            border-radius: 6px;
+            animation: wobble 0.6s ease-in-out infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        .ribs {
+            width: 100%;
+            height: 10px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            margin: 3px 0;
+            box-shadow: 0 0 3px rgba(255, 255, 255, 0.7);
+        }
+
+        .legs {
+            display: flex;
+            justify-content: space-between;
+            width: 34px;
+            position: absolute;
+            bottom: -32px;
+        }
+
+        .leg {
+            width: 12px;
+            height: 35px;
+            background-color: white;
+            border: 3px solid #333;
+            border-radius: 6px;
+            animation: walk 0.6s ease-in-out infinite;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+        }
+
+        /* Moon in the background */
+        .moon {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-color: #FFF9C4;
+            border-radius: 50%;
+            top: 40px;
+            right: 60px;
+            box-shadow: 0 0 30px #FFF9C4;
+            animation: glow 4s ease-in-out infinite;
+            cursor: pointer;
+            transition: transform 0.3s, filter 0.3s;
+        }
+
+        /* Stars in the background */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        /* Grass elements */
+        .grass {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        .grass-blade {
+            width: 8px;
+            height: 20px;
+            background-color: #8BC34A;
+            border-radius: 0 10px 0 0;
+            transform-origin: bottom center;
+            animation: sway 2s ease-in-out infinite;
+        }
+
+        /* Title styling */
+        .title {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            z-index: 20;
+        }
+
+        /* Scoreboard styling */
+        .scoreboard {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+            z-index: 20;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+        
+        .points-rate {
+            font-size: 16px;
+            color: #4CAF50;
+            font-style: italic;
+        }
+        
+        /* Shop styles */
+        .shop-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 15px;
+            background-color: #9c27b0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 30;
+            box-shadow: 0 0 10px rgba(156, 39, 176, 0.7);
+            transition: all 0.3s;
+        }
+        
+        .shop-button:hover {
+            background-color: #7b1fa2;
+            transform: scale(1.05);
+        }
+        
+        .shop-modal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            background-color: rgba(30, 30, 60, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            z-index: 100;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            border: 4px solid #8BC34A;
+        }
+        
+        .shop-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+        }
+        
+        .shop-items {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .shop-item {
+            width: 120px;
+            text-align: center;
+            background-color: rgba(50, 50, 80, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .shop-item:hover {
+            background-color: rgba(70, 70, 100, 0.8);
+            transform: scale(1.05);
+        }
+        
+        .shop-item-image {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .shop-item-name {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .shop-item-price {
+            color: #FFC107;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .shop-item-bonus {
+            color: #4CAF50;
+            font-size: 14px;
+            font-style: italic;
+        }
+        
+        .shop-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .shop-close:hover {
+            color: #FF5252;
+            transform: scale(1.2);
+        }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 90;
+        }
+        
+        /* Hat styles */
+        .hat {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            z-index: 15;
+        }
+        
+        .top-hat {
+            content: "🎩";
+        }
+        
+        .fedora {
+            content: "👒";
+        }
+        
+        .cowboy {
+            content: "🤠";
+        }
+        
+        .crown {
+            content: "👑";
+        }
+
+        /* Keyframes for moving the skeleton */
+        @keyframes move {
+            0% { transform: translateX(-50%) translateY(0); }
+            25% { transform: translateX(-50%) translateY(-6px); }
+            50% { transform: translateX(-50%) translateY(0); }
+            75% { transform: translateX(-50%) translateY(6px); }
+            100% { transform: translateX(-50%) translateY(0); }
+        }
+
+        /* Keyframes for leg movement */
+        @keyframes walk {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(25deg); }
+        }
+
+        /* Keyframes for arm wobbling */
+        @keyframes wobble {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(12deg); }
+        }
+
+        /* Keyframes for stars twinkling */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        /* Keyframes for grass swaying */
+        @keyframes sway {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* Keyframes for glowing effect */
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        /* Apply the walking animation to the legs */
+        .leg.left {
+            animation-direction: alternate;
+        }
+
+        .leg.right {
+            animation-direction: alternate-reverse;
+        }
+
+        #skeleton:hover {
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) scale(1); }
+            50% { transform: translateX(-50%) scale(1.1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="movement-area">
+        <div class="scoreboard">Score: <span id="score">0</span><br><span class="points-rate">+<span id="points-per-second">1</span> points/sec</span></div>
+        <button class="shop-button" id="shop-button">Hat Shop</button>
+        <div class="moon" id="moon"></div>
+        <div class="stars" id="stars-container"></div>
+        <div class="grass" id="grass-container"></div>
+        <div id="skeleton">
+            <div class="head">💀</div>
+            <div class="body">
+                <div class="arms"></div>
+                <div class="ribs"></div>
+                <div class="ribs"></div>
+                <div class="ribs"></div>
+                <div class="ribs"></div>
+                <div class="legs">
+                    <div class="leg left"></div>
+                    <div class="leg right"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-overlay" id="modal-overlay"></div>
+    <div class="shop-modal" id="shop-modal">
+        <div class="shop-close" id="shop-close">✖</div>
+        <div class="shop-header">Skeleton Hat Shop</div>
+        <div class="shop-items">
+            <div class="shop-item" data-hat="top-hat" data-price="50" data-bonus="5">
+                <div class="shop-item-image">🎩</div>
+                <div class="shop-item-name">Top Hat</div>
+                <div class="shop-item-price">50 Moon Points</div>
+                <div class="shop-item-bonus">+5 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="fedora" data-price="100" data-bonus="10">
+                <div class="shop-item-image">👒</div>
+                <div class="shop-item-name">Fedora</div>
+                <div class="shop-item-price">100 Moon Points</div>
+                <div class="shop-item-bonus">+10 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="cowboy" data-price="250" data-bonus="15">
+                <div class="shop-item-image">🤠</div>
+                <div class="shop-item-name">Cowboy Hat</div>
+                <div class="shop-item-price">250 Moon Points</div>
+                <div class="shop-item-bonus">+15 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="crown" data-price="500" data-bonus="50">
+                <div class="shop-item-image">👑</div>
+                <div class="shop-item-name">Crown</div>
+                <div class="shop-item-price">500 Moon Points</div>
+                <div class="shop-item-bonus">+50 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="party" data-price="750" data-bonus="75">
+                <div class="shop-item-image">🥳</div>
+                <div class="shop-item-name">Party Hat</div>
+                <div class="shop-item-price">750 Moon Points</div>
+                <div class="shop-item-bonus">+75 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="wizard" data-price="1000" data-bonus="100">
+                <div class="shop-item-image">🧙</div>
+                <div class="shop-item-name">Wizard Hat</div>
+                <div class="shop-item-price">1000 Moon Points</div>
+                <div class="shop-item-bonus">+100 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="chef" data-price="1500" data-bonus="150">
+                <div class="shop-item-image">👨‍🍳</div>
+                <div class="shop-item-name">Chef Hat</div>
+                <div class="shop-item-price">1500 Moon Points</div>
+                <div class="shop-item-bonus">+150 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="graduate" data-price="2000" data-bonus="200">
+                <div class="shop-item-image">🎓</div>
+                <div class="shop-item-name">Graduation Cap</div>
+                <div class="shop-item-price">2000 Moon Points</div>
+                <div class="shop-item-bonus">+200 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="alien" data-price="3000" data-bonus="300">
+                <div class="shop-item-image">👽</div>
+                <div class="shop-item-name">Alien Hat</div>
+                <div class="shop-item-price">3000 Moon Points</div>
+                <div class="shop-item-bonus">+300 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="construction" data-price="4000" data-bonus="400">
+                <div class="shop-item-image">👷</div>
+                <div class="shop-item-name">Construction Hat</div>
+                <div class="shop-item-price">4000 Moon Points</div>
+
+        <!-- Save Game Button -->
+        <button id="save-button" style="position: absolute; bottom: 20px; right: 20px; padding: 8px 15px; background-color: #2196F3; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; z-index: 30; box-shadow: 0 0 10px rgba(33, 150, 243, 0.7);">Save Game</button>
+
+                <div class="shop-item-bonus">+400 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="devil" data-price="6666" data-bonus="666">
+                <div class="shop-item-image">😈</div>
+                <div class="shop-item-name">Devil Horns</div>
+                <div class="shop-item-price">6666 Moon Points</div>
+                <div class="shop-item-bonus">+666 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="santa" data-price="7500" data-bonus="750">
+                <div class="shop-item-image">🎅</div>
+                <div class="shop-item-name">Santa Hat</div>
+                <div class="shop-item-price">7500 Moon Points</div>
+                <div class="shop-item-bonus">+750 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="police" data-price="9000" data-bonus="900">
+                <div class="shop-item-image">👮</div>
+                <div class="shop-item-name">Police Hat</div>
+                <div class="shop-item-price">9000 Moon Points</div>
+                <div class="shop-item-bonus">+900 points/sec</div>
+            </div>
+            <div class="shop-item" data-hat="diamond" data-price="12000" data-bonus="1200">
+                <div class="shop-item-image">💎</div>
+                <div class="shop-item-name">Diamond Crown</div>
+                <div class="shop-item-price">12000 Moon Points</div>
+                <div class="shop-item-bonus">+1200 points/sec</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const skeleton = document.getElementById('skeleton');
+        const movementArea = document.getElementById('movement-area');
+        const starsContainer = document.getElementById('stars-container');
+        const grassContainer = document.getElementById('grass-container');
+        const moon = document.getElementById('moon');
+        const scoreElement = document.getElementById('score');
+        const shopButton = document.getElementById('shop-button');
+        const shopModal = document.getElementById('shop-modal');
+        const shopClose = document.getElementById('shop-close');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const shopItems = document.querySelectorAll('.shop-item');
+        
+        // Initialize game state with saved data or defaults
+        let score = 0;
+        let currentHat = null;
+        let purchasedHats = [];
+        let pointsPerSecond = 1; // Base points per second
+        let lastPointUpdate = Date.now();
+        
+        // Load saved game data if it exists
+        function loadSavedGame() {
+            const savedData = localStorage.getItem('skeletonGameSave');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                score = gameData.score || 0;
+                purchasedHats = gameData.purchasedHats || [];
+                pointsPerSecond = gameData.pointsPerSecond || 1;
+                
+                // Update UI with loaded data
+                scoreElement.textContent = score;
+                document.getElementById('points-per-second').textContent = pointsPerSecond;
+                
+                // Equip the last hat if any was equipped
+                if (gameData.currentHatType) {
+                    const hatData = purchasedHats.find(hat => hat.type === gameData.currentHatType);
+                    if (hatData) {
+                        equipHat(hatData.type, hatData.bonus);
+                    }
+                }
+                
+                console.log('Game loaded from save!');
+            }
+        }
+        
+        // Save game data function
+        function saveGame() {
+            const gameData = {
+                score: score,
+                purchasedHats: purchasedHats,
+                pointsPerSecond: pointsPerSecond,
+                currentHatType: currentHat ? currentHat.className.split(' ')[1] : null,
+                lastSave: Date.now()
+            };
+            
+            localStorage.setItem('skeletonGameSave', JSON.stringify(gameData));
+            console.log('Game saved!');
+        }
+        
+        // Load game on start
+        loadSavedGame();
+        
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+        
+        // Passive point generation
+        function updatePoints() {
+            const now = Date.now();
+            const elapsed = (now - lastPointUpdate) / 1000; // Convert to seconds
+            
+            if (elapsed >= 1) {
+                // Handle offline progress
+                const savedData = localStorage.getItem('skeletonGameSave');
+                if (savedData) {
+                    const gameData = JSON.parse(savedData);
+                    // If last save was more than 5 minutes ago, calculate offline progress
+                    if (gameData.lastSave && now - gameData.lastSave > 5 * 60 * 1000) {
+                        const offlineSeconds = Math.floor((now - gameData.lastSave) / 1000);
+                        const offlinePoints = Math.floor(offlineSeconds * pointsPerSecond);
+                        if (offlinePoints > 0) {
+                            score += offlinePoints;
+                            // Show offline progress notification
+                            alert(`Welcome back! You earned ${offlinePoints} points while away!`);
+                        }
+                    }
+                }
+                
+                score += Math.floor(elapsed * pointsPerSecond);
+                scoreElement.textContent = score;
+                lastPointUpdate = now;
+                
+                // Save every 30 seconds of active play
+                if (Math.floor(now / 1000) % 30 === 0) {
+                    saveGame();
+                }
+            }
+            
+            requestAnimationFrame(updatePoints);
+        }
+        
+        // Start passive point generation
+        updatePoints();
+        
+        // Add click event to the moon
+        moon.addEventListener('click', () => {
+            score += 1;
+            scoreElement.textContent = score;
+            
+            // Add a little animation to the moon when clicked
+            moon.style.transform = 'scale(1.2)';
+            moon.style.filter = 'brightness(1.5)';
+            setTimeout(() => {
+                moon.style.transform = '';
+                moon.style.filter = '';
+            }, 300);
+            
+            // Save after significant score changes (throttled to prevent excessive saves)
+            if (score % 10 === 0) {
+                saveGame();
+            }
+        });
+        
+        // Shop functionality
+        shopButton.addEventListener('click', () => {
+            shopModal.style.display = 'block';
+            modalOverlay.style.display = 'block';
+            updateShopItemsDisplay(); // Update shop display when opened
+        });
+        
+        shopClose.addEventListener('click', () => {
+            shopModal.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        });
+        
+        modalOverlay.addEventListener('click', () => {
+            shopModal.style.display = 'none';
+            modalOverlay.style.display = 'none';
+        });
+        
+        // Function to update item display to show "Owned" for purchased hats
+        function updateShopItemsDisplay() {
+            shopItems.forEach(item => {
+                const hatType = item.getAttribute('data-hat');
+                const isPurchased = purchasedHats.some(hat => hat.type === hatType);
+                
+                if (isPurchased) {
+                    const priceElement = item.querySelector('.shop-item-price');
+                    priceElement.textContent = "Owned - Equip for Free";
+                    priceElement.style.color = "#4CAF50";
+                }
+            });
+        }
+        
+        // Handle hat purchases and equips
+        shopItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const hatType = item.getAttribute('data-hat');
+                const price = parseInt(item.getAttribute('data-price'));
+                const pointBonus = parseInt(item.getAttribute('data-bonus'));
+                
+                // Check if hat is already purchased
+                const isPurchased = purchasedHats.some(hat => hat.type === hatType);
+                
+                if (isPurchased) {
+                    // Already owned, just equip it
+                    const purchasedHat = purchasedHats.find(hat => hat.type === hatType);
+                    equipHat(hatType, purchasedHat.bonus);
+                    
+                    // Close the shop
+                    shopModal.style.display = 'none';
+                    modalOverlay.style.display = 'none';
+                    
+                    // Show equip success animation
+                    item.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
+                    setTimeout(() => {
+                        item.style.backgroundColor = 'rgba(50, 50, 80, 0.8)';
+                    }, 500);
+                } else if (score >= price) {
+                    // New purchase
+                    score -= price;
+                    scoreElement.textContent = score;
+                    
+                    const hatData = {
+                        type: hatType,
+                        bonus: pointBonus
+                    };
+                    
+                    purchasedHats.push(hatData);
+                    
+                    // Update display to show it's now owned
+                    const priceElement = item.querySelector('.shop-item-price');
+                    priceElement.textContent = "Owned - Equip for Free";
+                    priceElement.style.color = "#4CAF50";
+                    
+                    // Equip the hat
+                    equipHat(hatType, pointBonus);
+                    
+                    // Close the shop
+                    shopModal.style.display = 'none';
+                    modalOverlay.style.display = 'none';
+                    
+                    // Show purchase success animation
+                    item.style.backgroundColor = 'rgba(76, 175, 80, 0.8)';
+                    setTimeout(() => {
+                        item.style.backgroundColor = 'rgba(50, 50, 80, 0.8)';
+                    }, 500);
+                    
+                    // Save game after purchase
+                    saveGame();
+                } else {
+                    // Not enough points
+                    item.style.backgroundColor = 'rgba(244, 67, 54, 0.8)';
+                    setTimeout(() => {
+                        item.style.backgroundColor = 'rgba(50, 50, 80, 0.8)';
+                    }, 500);
+                }
+            });
+        });
+        
+        function equipHat(hatType, bonus) {
+            // Reset to base points per second
+            pointsPerSecond = 1;
+            
+            // Remove current hat if any
+            if (currentHat) {
+                currentHat.remove();
+            }
+            
+            // Add bonus from the new hat
+            pointsPerSecond += bonus;
+            
+            // Create and add the new hat
+            const hat = document.createElement('div');
+            hat.className = `hat ${hatType}`;
+            
+            // Set the emoji based on hat type
+            switch(hatType) {
+                case 'top-hat':
+                    hat.textContent = '🎩';
+                    break;
+                case 'fedora':
+                    hat.textContent = '👒';
+                    break;
+                case 'cowboy':
+                    hat.textContent = '🤠';
+                    break;
+                case 'crown':
+                    hat.textContent = '👑';
+                    break;
+                case 'party':
+                    hat.textContent = '🥳';
+                    break;
+                case 'wizard':
+                    hat.textContent = '🧙';
+                    break;
+                case 'chef':
+                    hat.textContent = '👨‍🍳';
+                    break;
+                case 'graduate':
+                    hat.textContent = '🎓';
+                    break;
+                case 'alien':
+                    hat.textContent = '👽';
+                    break;
+                case 'construction':
+                    hat.textContent = '👷';
+                    break;
+                case 'devil':
+                    hat.textContent = '😈';
+                    break;
+                case 'santa':
+                    hat.textContent = '🎅';
+                    break;
+                case 'police':
+                    hat.textContent = '👮';
+                    break;
+                case 'diamond':
+                    hat.textContent = '💎';
+                    break;
+                default:
+                    hat.textContent = '🎩';
+            }
+            
+            // Add hat to skeleton's head
+            const skeletonHead = skeleton.querySelector('.head');
+            skeletonHead.appendChild(hat);
+            
+            // Update current hat reference
+            currentHat = hat;
+            
+            // Update points per second display
+            document.getElementById('points-per-second').textContent = pointsPerSecond;
+            
+            // Save game after hat change
+            saveGame();
+        }
+
+        // Create stars
+        function createStars() {
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 70}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Create grass
+        function createGrass() {
+            for (let i = 0; i < 120; i++) {
+                const blade = document.createElement('div');
+                blade.classList.add('grass-blade');
+                blade.style.height = `${Math.random() * 15 + 10}px`;
+                blade.style.animationDelay = `${Math.random() * 2}s`;
+                grassContainer.appendChild(blade);
+            }
+        }
+
+        function moveSkeleton() {
+            const areaWidth = movementArea.clientWidth;
+            const areaHeight = movementArea.clientHeight;
+            const skeletonWidth = skeleton.offsetWidth;
+            const skeletonHeight = skeleton.offsetHeight;
+
+            // Random position within the movement area
+            const randomX = Math.random() * (areaWidth - skeletonWidth);
+            const randomY = Math.random() * (areaHeight / 2); // Keep it in the bottom half
+
+            // Set the new position of the skeleton
+            skeleton.style.left = `${randomX}px`;
+            skeleton.style.bottom = `${randomY}px`;
+        }
+
+        // Initialize the scene
+        createStars();
+        createGrass();
+
+        // Add walking animation
+        skeleton.style.animation = 'move 2s linear infinite';
+
+        // Move the skeleton every 3 seconds
+        setInterval(moveSkeleton, 3000);
+        
+        // Manual save button
+        document.getElementById('save-button').addEventListener('click', () => {
+            saveGame();
+            alert('Game saved successfully!');
+        });
+
+        // Add interactivity
+        skeleton.addEventListener('click', () => {
+            skeleton.style.transform = 'translateX(-50%) scale(1.2)';
+            setTimeout(() => {
+                skeleton.style.transform = 'translateX(-50%) scale(1)';
+            }, 300);
+        });
+    </script>
+</body>
+</html>
