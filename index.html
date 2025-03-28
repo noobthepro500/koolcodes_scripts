@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Simple Homepage</title>
+  <style>
+    /* CSS Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #009578;
+      color: #fff;
+      padding: 20px;
+      text-align: center;
+    }
+
+    nav {
+      background: #333;
+      display: flex;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    nav a {
+      color: #fff;
+      margin: 0 15px;
+      text-decoration: none;
+      font-size: 1.1em;
+    }
+
+    main {
+      flex: 1;
+      padding: 20px;
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #333;
+      color: #fff;
+    }
+
+    button {
+      background: #009578;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1em;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #007a63;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>RickStim</h1>
+  </header>
+  
+  <nav>
+    <a href="https://rickstim.ru/3den.html">3Den</a>
+    <a href="https://rickstim.ru/3Rdperson.html">3rd Person</a>
+    <a href="https://rickstim.ru/pend.html">Pendulum</a>
+    <a href="https://rickstim.ru/Skeleton.html">Skeleton</a>
+  </nav>
+  
+  <main>
+    <h2>About Rickstim</h2>
+    <p>Rickstim Is cool.</p>
+    <button id="clickMeBtn">Click Me</button>
+    <p id="message" style="margin-top: 20px;"></p>
+  </main>
+  
+  <footer>
+    <p>&copy; 2025 My Website</p>
+  </footer>
+  
+  <script>
+    // Simple JavaScript interaction
+    document.getElementById('clickMeBtn').addEventListener('click', function() {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = "You clicked the button!";
+    });
+  </script>
+</body>
+</html>
